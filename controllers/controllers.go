@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gabriel-s-souza/api_rest_sample_with_go/models"
 	"github.com/gorilla/mux"
@@ -39,7 +40,7 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 	product, err := models.GetProductById(id)
 
 	if err != nil {
-		if err.Error() == "Product not found" {
+		if strings.Contains(err.Error(), "Product not found") {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)

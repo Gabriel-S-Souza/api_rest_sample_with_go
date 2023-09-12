@@ -60,7 +60,6 @@ func GetProducts() (string, error) {
 }
 
 func GetProductById(id int) (Product, error) {
-	fmt.Println("id: ", id)
 	db := db.ConnectWithDB()
 	defer db.Close()
 	var product Product
@@ -75,6 +74,5 @@ func GetProductById(id int) (Product, error) {
 			return product, err
 		}
 	}
-	fmt.Println(product)
 	return product, nil
 }
