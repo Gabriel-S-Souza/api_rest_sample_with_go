@@ -1,9 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
+
+	_ "github.com/lib/pq"
 )
+
+func connectWithDB() *sql.DB {
+	connectionString := "user=postgres dbname=products_store password=mypostgrepassword host=localhost sslmode=disable"
+	db, err := sql.Open("postgres", connectionString)
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
+}
 
 type Product struct {
 	ID          int
@@ -29,10 +41,27 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
-	products := []Product{
-		{ID: 1, Name: "Camiseta", Description: "Camisa azul", Price: 16.99, Quantity: 10},
-		{ID: 2, Name: "Calça", Description: "Calça jeans", Price: 26.99, Quantity: 20},
-		{ID: 3, Name: "Tênis", Description: "Tênis esportivo", Price: 36.99, Quantity: 30},
+	db := connectWithDB()
+	rows, err := db.Query("SELECT * FROM products")
+	if err != nil {
+		panic(err.Error())
+	}
+	products := []Product{}
+
+	for rows.Next() {
+		var id int
+		var name string
+		var description string
+		var price float64
+		var quantity int
+
+		err = rows.Scan(&id, &name, &description, &price, &quantity)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		products = append(products, Product{id, name, description, price, quantity})
+		defer db.Close()
 	}
 
 	w.Header().Set("Content-Type", "application/json")
