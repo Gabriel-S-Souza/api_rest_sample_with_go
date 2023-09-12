@@ -69,10 +69,21 @@ func GetProductById(id int) (Product, error) {
 	if err != nil {
 		fmt.Println(err)
 		if err.Error() == sql.ErrNoRows.Error() {
-			return product, errors.New("Product not found: " + fmt.Sprintf("%d", id))
+			return product, errors.New("product not found: " + fmt.Sprintf("%d", id))
 		} else {
 			return product, err
 		}
 	}
 	return product, nil
+}
+
+func (p Product) CreateProduct(name string, description string, price float64, quantity int) (Product, error) {
+	db := db.ConnectWithDB()
+	defer db.Close()
+	sqlStatement := `INSERT INTO products (name, description, price, quantity) VALUES ($1, $2, $3, $4) RETURNING id`
+	err := db.QueryRow(sqlStatement, name, description, price, quantity).Scan(&p.ID)
+	if err != nil {
+		return Product{}, errors.New("error creating the product")
+	}
+	return p, nil
 }
