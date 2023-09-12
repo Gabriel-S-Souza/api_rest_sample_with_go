@@ -4,12 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func connectWithDB() *sql.DB {
-	connectionString := "user=postgres dbname=products_store password=mypostgrepassword host=localhost sslmode=disable"
+	godotenv.Load()
+	dbPawword := os.Getenv("DB_PASSWORD")
+	connectionString := fmt.Sprintf("user=postgres dbname=products_store password=%s host=localhost sslmode=disable", dbPawword)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		panic(err.Error())
